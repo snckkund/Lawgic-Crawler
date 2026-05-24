@@ -1,191 +1,297 @@
-# LAWGIC – A Scalable framework for Legal Section Recommendation
+# LAWGIC-Crawler – AI-Powered Legal Intelligence & Case Discovery Platform
 
-LAWGIC is an intelligent legal assistance system designed to analyze First Information Report (FIR) descriptions and recommend relevant legal provisions under the Bharatiya Nyaya Sanhita (BNS). The system uses Natural Language Processing (NLP), semantic similarity techniques, and a local Large Language Model (LLM) to interpret case descriptions and generate structured legal analysis.
+> LAWGIC-Crawler is an AI-powered legal intelligence platform that combines NLP, semantic similarity, web crawling, OCR, and cloud-hosted LLMs to analyze FIR descriptions, recommend BNS/IPC sections, retrieve similar legal cases and judgments, and generate structured printable legal research reports with linked legal references.
 
-This project demonstrates how artificial intelligence can assist in early-stage legal interpretation by automatically identifying applicable legal sections, explaining offenses, and generating structured legal reports.
+---
 
+## Features
 
-# Features:
+### Core Analysis
+- 🧠 **AI-powered FIR analysis** using cloud-hosted LLMs (Groq, Gemini, OpenRouter)
+- ⚖️ **BNS/IPC section recommendation** via semantic similarity matching
+- 🎤 **Voice input** using Web Speech API
+- 📷 **Image-based FIR input** using OCR (Tesseract)
 
-1. AI-based analysis of FIR descriptions
+### Case Discovery (NEW)
+- 🔍 **Intelligent web crawling** — searches Indian Kanoon for similar cases
+- 📊 **Semantic similarity scoring** — ranks cases using embedding similarity + keywords + section overlap
+- 🏛️ **Court authority scoring** — weighs Supreme Court results higher than lower courts
+- 🔗 **Clickable source links** — every result links to the original case
 
-2. Semantic similarity matching using Sentence Transformers
+### Reports
+- 📄 **Enhanced PDF reports** with professional typography, case cards, and hyperlinks
+- 🌐 **Printable HTML reports** with modern design
+- 📋 **JSON export** for programmatic access
 
-3. Automatic recommendation of relevant BNS / IPC sections
+### Architecture
+- ☁️ **Cloud LLM integration** — no local GPU required (configurable provider + fallback)
+- 💾 **SQLite caching** — avoids redundant LLM calls and web crawling
+- 🔒 **Security** — input sanitization, rate limiting, structured logging
+- 🐳 **Docker support** — containerized deployment with Gunicorn
 
-4. Hybrid validation using semantic analysis and keyword hints
+---
 
-5. Voice-based FIR input using speech recognition
+## System Architecture
 
-6. Image-based FIR input using OCR (Tesseract)
+```
+User Input (Text / Voice / Image)
+        │
+        ▼
+   ┌─────────┐
+   │  Flask   │ ← Web Interface
+   │  Server  │
+   └────┬─────┘
+        │
+   ┌────┴────────────────────────────┐
+   │                                 │
+   ▼                                 ▼
+┌──────────┐                 ┌──────────────┐
+│ OCR      │                 │ Embedding    │
+│ (Tesseract)│               │ (MiniLM-L6)  │
+└──────────┘                 └──────┬───────┘
+                                    │
+                    ┌───────────────┼───────────────┐
+                    │               │               │
+                    ▼               ▼               ▼
+            ┌──────────┐   ┌──────────┐    ┌──────────────┐
+            │ BNS Law  │   │ Cloud    │    │ Web Crawler  │
+            │ Matching │   │ LLM API  │    │ (Indian      │
+            │          │   │ (Groq)   │    │  Kanoon)     │
+            └──────────┘   └──────────┘    └──────────────┘
+                    │               │               │
+                    └───────────────┼───────────────┘
+                                    │
+                                    ▼
+                            ┌──────────────┐
+                            │ Report Gen   │
+                            │ (PDF/HTML)   │
+                            └──────────────┘
+```
 
-7. AI-generated structured legal analysis using a local LLM
+---
 
-8. Automatic PDF legal report generation
+## Project Structure
 
-9. User-friendly web interface built with Flask
+```
+Lawgic-Crawler/
+├── app.py                  # Main Flask application
+├── config/
+│   ├── __init__.py
+│   └── settings.py         # Central configuration
+├── services/
+│   ├── __init__.py
+│   ├── llm_service.py      # Cloud LLM API client
+│   ├── report_generator.py # PDF + HTML report generation
+│   └── cache_service.py    # SQLite caching
+├── crawler/
+│   ├── __init__.py
+│   ├── search_engine.py    # Search orchestrator
+│   ├── scraper.py          # Web scraping + HTTP
+│   ├── parser.py           # Legal document parser
+│   ├── ranking.py          # Result ranking
+│   ├── sources.py          # Legal source definitions
+│   └── utils.py            # Rate limiting, helpers
+├── retrieval/
+│   ├── __init__.py
+│   ├── embedder.py         # SentenceTransformer wrapper
+│   ├── vector_store.py     # FAISS vector index
+│   ├── similarity.py       # Semantic search
+│   └── reranker.py         # LLM-based reranking (placeholder)
+├── templates/
+│   └── index.html          # Web interface
+├── static/
+│   ├── css/style.css       # Stylesheet
+│   └── js/app.js           # Client-side JavaScript
+├── build_db.py             # Database builder
+├── parse_bns.py            # BNS text parser
+├── bns_laws.csv            # Parsed BNS sections
+├── raw_bns.txt             # Raw BNS text
+├── lawgic.db               # SQLite database
+├── requirements.txt        # Python dependencies
+├── .env.example            # Environment template
+├── Dockerfile              # Container build
+├── docker-compose.yml      # Container orchestration
+└── README.md               # This file
+```
 
+---
 
-# System Architecture:
+## Technologies Used
 
-The system follows this workflow:
+| Category | Technology |
+|----------|------------|
+| Language | Python 3.11+ |
+| Web Framework | Flask |
+| NLP | Sentence Transformers (all-MiniLM-L6-v2) |
+| Vector Search | FAISS |
+| Cloud LLM | Groq / Gemini / OpenRouter (OpenAI-compatible) |
+| Web Crawling | BeautifulSoup4, Requests |
+| OCR | Tesseract, Pillow |
+| Voice Input | Web Speech API |
+| Database | SQLite |
+| Reports | FPDF, HTML/CSS |
+| Deployment | Docker, Gunicorn |
 
---> User provides FIR description through text, voice, or image upload.
+---
 
---> If an image is uploaded, OCR extracts text from the image.
+## Installation
 
---> The input text is cleaned and preprocessed.
+### 1. Clone the Repository
 
---> Sentence Transformer converts the text into embeddings.
+```bash
+git clone https://github.com/yourusername/Lawgic-Crawler.git
+cd Lawgic-Crawler
+```
 
---> Semantic similarity compares the FIR description with legal section descriptions.
+### 2. Create Virtual Environment
 
---> Relevant BNS / IPC sections are retrieved.
-
---> A local LLM generates structured legal reasoning and analysis.
-
---> The system displays results and allows users to download a PDF report.
-
-
-# Technologies Used:
-
-1. Programming Language - Python
-
-2. Web Framework - Flask
-
-3. Natural Language Processing - Sentence Transformers (all-MiniLM-L6-v2)
-
-4. Machine Learning Techniques - Semantic embeddings, Cosine similarity
-
-5. Database - SQLite
-
-6. Image Processing - Tesseract OCR, Pillow (PIL)
-
-7. Voice Input - Web Speech API
-
-8. AI Model - Ollama, LLaMA model
-
-9. Report Generation - FPDF
-
-10. Data Processing - Pandas
-
-
-
-# Installation:
-
-1. Clone the Repository:
-
-git clone https://github.com/yourusername/LAWgic.git
-
-cd LAWgic
-
-2. Create Virtual Environment:
-
+```bash
 python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# venv\Scripts\activate   # Windows
+```
 
-source venv/bin/activate
+### 3. Install Dependencies
 
-For Windows: venv\Scripts\activate
+```bash
+pip install -r requirements.txt
+```
 
-3. Install Dependencies: pip install -r requirements.txt
+### 4. Configure Environment
 
-4. Install the LLM Model:
+```bash
+cp .env.example .env
+# Edit .env with your API key:
+# LLM_PROVIDER=groq
+# LLM_API_KEY=your_groq_api_key
+```
 
-This project uses Ollama to run a local LLM. Install Ollama. Download from: https://ollama.ai
+### 5. Build the Database (if needed)
 
-To Pull the LLM model: ollama pull llama3
+```bash
+python build_db.py
+```
 
-To Run the model: ollama run llama3
+### 6. Run the Application
 
-The model will run locally and the application will connect to it through: http://localhost:11434
+```bash
+python app.py
+```
 
-5. Run the Application. Start the Flask server: python app.py
+Open your browser and go to: **http://localhost:5050**
 
-6. Open your browser and go to: http://localhost:5050
+### Docker (Optional)
 
+```bash
+docker-compose up --build
+```
 
-# Usage:
+---
 
-1. Enter a case description in the input field.
+## Usage
 
-2. You can also:
-
-      --> Speak the FIR using voice input
-
-      --> Upload an FIR image for OCR processing
-
-3. Click Analyze Case.
-
+1. **Enter a case description** in the input field
+2. Optionally: **speak** the FIR using voice input or **upload** an FIR image
+3. Click **⚡ Analyze Case**
 4. The system will display:
+   - AI legal analysis with BNS sections, reasoning, and punishments
+   - Confidence score visualization
+   - Similar cases from Indian Kanoon with relevance scores
+5. **Download** the complete analysis as PDF, printable HTML, or JSON
 
-      --> Case summary
+---
 
-      --> Applicable legal sections
+## Configuration
 
-      --> Legal reasoning
+All settings are configured via `.env` file. See [.env.example](.env.example) for all options.
 
-      --> Possible punishments
+### LLM Providers
 
-5. You can download the complete analysis as a PDF report.
+| Provider | Base URL | Free Tier |
+|----------|----------|-----------|
+| **Groq** (default) | `https://api.groq.com/openai/v1` | ✅ Yes |
+| Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | ✅ Yes |
+| OpenRouter | `https://openrouter.ai/api/v1` | ✅ Limited |
+| Ollama (local) | `http://localhost:11434/v1` | N/A |
 
+---
 
-# The system generates structured legal analysis including:
+## Performance Targets
 
-  --> Case Summary
+| Operation | Target |
+|-----------|--------|
+| FIR Analysis | < 5 sec |
+| Similar Case Retrieval | < 10 sec |
+| PDF Generation | < 3 sec |
+| Concurrent Users | 50+ |
 
-  --> Legal Ingredients Identified
+---
 
-  --> Applicable BNS / IPC Sections
+## Limitations
 
-  --> Legal Reasoning
+- The system depends on the quality of the FIR description
+- OCR accuracy depends on image clarity
+- Voice recognition may be affected by background noise
+- Web crawling results depend on Indian Kanoon availability
+- This system is designed for academic purposes and does not replace professional legal advice
 
-  --> Possible Punishments
+---
 
-  --> Aggravating and Mitigating Factors
+## Future Enhancements
 
-  --> Final Legal Opinion
+- RAG-based legal chatbot
+- Legal timeline extraction
+- Multi-language FIR support
+- Judge prediction analytics
+- Graph-based crime relation mapping
+- Real-time legal news ingestion
 
-  --> Confidence Level
+---
 
+## Credits & Acknowledgments
 
-# Limitations:
+### Original Developers (Parent Repository)
+This project is forked from the parent repository [reventhelangovan2005gmailcom/LAWGIC](https://github.com/reventhelangovan2005gmailcom/LAWGIC) developed by:
+* **Reventh E** (Reg_no: 2260422, BTCS CU'26)
+* **Charunetra M** (Reg_no: 2260391, BTCS CU'26)
+* **Under the guidance of**: Dr. Kalyana Saravanan.A (Associate Professor)
 
-  --> The system depends on the quality of the FIR description.
+**Department of Computer Science and Engineering**  
+**CHRIST (Deemed to be University), Bangalore**
 
-  --> OCR accuracy depends on image clarity.
+---
 
-  --> Voice recognition may be affected by background noise.
+### Upgraded & Modular Edition (Current Fork)
 
-  --> The system is designed for academic purposes and does not replace professional legal advice.
+This version of the platform has been extensively re-engineered and upgraded as part of a **corporate academic internship (1st – 30th May 2026)** with:  
+**UTINA INFOTECH PRIVATE LIMITED**
 
+#### Fork Team Developers
 
-# Future Enhancements:
+##### M.Tech in Computer Science and Engineering (3MTCS)
+* **Shivangi** (Roll No: 2567113 | [shivangi.a@mtech.christuniversity.in](mailto:shivangi.a@mtech.christuniversity.in))
+* **SN Chandra Kanta Kund** (Roll No: 2567114 | [sn.chandra@mtech.christuniversity.in](mailto:sn.chandra@mtech.christuniversity.in))
+* **Arnab Mondal** (Roll No: 2567118 | [arnab.mondal@mtech.christuniversity.in](mailto:arnab.mondal@mtech.christuniversity.in))
 
-  --> Integration with real legal case databases
+##### M.Tech in Data Science (3MTDS)
+* **Abhishek Deep** (Roll No: 2567201 | [abhishek.deep@mtech.christuniversity.in](mailto:abhishek.deep@mtech.christuniversity.in))
+* **Anshu Kumari** (Roll No: 2567203 | [anshu.kumari@mtech.christuniversity.in](mailto:anshu.kumari@mtech.christuniversity.in))
 
-  --> Support for multiple Indian languages
+**Under the guidance of:** Dr. Kalyana Saravanan.A (Associate Professor)  
+**CHRIST (Deemed to be University), Bangalore**
 
-  --> Improved OCR for handwritten FIRs
+---
 
-  --> Cloud deployment for wider accessibility
+#### Engineering Enhancements & Upgrades
+The fork team transformed the initial baseline baseline into a robust, high-performance, modular system:
+- 🛠️ **Modular Re-architecture**: Split the monolithic codebase into structured packages (`crawler/`, `retrieval/`, `services/`, `config/`) for long-term scalability and clean separation of concerns.
+- 🧠 **Smart BNS Chunking Parser**: Developed a custom regex-based parser that segments raw BNS chapters into discrete semantic components (definitions, punishments, illustrations, and exceptions).
+- 🔍 **Indian Kanoon Crawler Upgrade**: Bypassed strict robots.txt blocks safely, introduced an elegant multi-query orchestration engine, and implemented robust selectors to parse court tiers, snippets, and document links.
+- ⚡ **Cross-Query Deduplication & Ranking**: Implemented multi-criteria ranking weights (keyword relevancy, section overlap, court-tier authority) with full cross-query URL deduplication.
+- 💾 **SQLite Semantic Caching**: Configured a local high-performance SQLite LLM cache table to minimize latency and bypass cloud API costs on redundant queries, with strict error exclusions.
+- ☁️ **Native Ollama & Fallbacks**: Integrated native `/api/chat` support for local or cloud-hosted Ollama models (such as `gemma4:31b-cloud`) with reliable multi-provider fallback.
+- 🚀 **Input Robustness & Sentence Ranking**: Added embedding-based sentence ranking to automatically extract the top 15 most factual sentences from raw, multi-thousand-character FIR inputs to stay within LLM context windows.
 
-  --> Advanced legal reasoning models
+---
 
-
-Disclaimer: This system is developed for academic and research purposes. The recommendations generated by the system should not be considered as official legal advice.
-
-
-
-# Authors:
-
-1. Reventh E (Reg_no: 2260422, BTCS CU'26)
-
-2. Charunetra M (Reg_no: 2260391, BTCS CU'26)
-
-
-
-Guided by: Dr. Kalyana Saravanan.A (Associate Professor)
-
-B.Tech Computer Science and Engineering
-
-CHRIST (Deemed to be University), Bangalore
+**Disclaimer:** This system is developed for academic and research purposes. The recommendations generated by the system should not be considered as official legal advice.

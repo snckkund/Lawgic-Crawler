@@ -2,239 +2,171 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Lawgic - Intelligent Legal Assistant</title>
-
-    <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --bg-color: #f4f7f6;
-            --text-color: #333;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        header h1 {
-            color: var(--primary-color);
-            font-size: 2.5rem;
-            margin: 0;
-            letter-spacing: 2px;
-        }
-
-        header p {
-            color: #7f8c8d;
-            margin-top: 5px;
-        }
-
-        .search-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-
-        textarea {
-            width: 100%;
-            height: 120px;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            resize: vertical;
-        }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--secondary-color);
-        }
-
-        .upload-area {
-            border: 2px dashed #bdc3c7;
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
-        }
-
-        .analyze-btn {
-            width: 100%;
-            padding: 15px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .analyze-btn:hover {
-            background-color: #1a252f;
-        }
-
-        .result-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            margin-top: 30px;
-        }
-
-        .result-header {
-            background-color: #ecf0f1;
-            padding: 15px 25px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .result-header h2 {
-            margin: 0;
-            color: var(--primary-color);
-        }
-
-        .result-body {
-            padding: 25px;
-        }
-
-        .download-btn {
-            background-color: #95a5a6;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 15px;
-        }
-
-        .download-btn:hover {
-            background-color: #7f8c8d;
-        }
-
-        pre {
-            white-space: pre-wrap;
-            font-family: inherit;
-        }
-
-        .mic-btn {
-            margin-top: 10px;
-            background: #ffecec;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            color: #e74c3c;
-        }
-
-        .mic-btn:hover {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .disclaimer {
-            margin-top: 40px;
-            font-size: 12px;
-            color: red;
-            text-align: center;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LAWGIC - AI-powered legal intelligence platform for FIR analysis, BNS section recommendation, and similar case discovery.">
+    <title>LAWGIC - AI Legal Intelligence Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
 
-<header>
-    <h1>LAWGIC</h1>
-    <p>AI-Powered Bharatiya Nyaya Sanhita (BNS) Legal Analysis</p>
-</header>
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Analyzing your case...</div>
+    <div id="loading-steps" class="loading-steps"></div>
+</div>
 
 <div class="container">
 
-    <div class="search-card">
-        <form method="POST" enctype="multipart/form-data">
+    <!-- Header -->
+    <header>
+        <h1>LAWGIC</h1>
+        <p class="subtitle">AI-Powered Legal Intelligence &amp; Case Discovery</p>
+        <span class="badge">Bharatiya Nyaya Sanhita 2023</span>
+    </header>
 
-            <label><strong>Case Details:</strong></label>
+    <!-- Input Card -->
+    <div class="card">
+        <div class="card-title">
+            <span class="icon">&#9878;</span> Case Analysis
+        </div>
 
-            <textarea name="case_description" id="case"
-                placeholder="Describe the incident here...">{{ input_text }}</textarea>
+        <form method="POST" enctype="multipart/form-data" onsubmit="return handleFormSubmit(this)">
 
-            <button type="button" class="mic-btn" onclick="startDictation()">🎤 Speak</button>
+            <textarea
+                name="case_description"
+                id="case"
+                placeholder="Describe the incident or FIR details here... (e.g., 'A person was robbed at gunpoint on MG Road, Bangalore. The accused threatened with a firearm and stole cash and mobile phone.')"
+            >{{ input_text }}</textarea>
 
-            <div class="upload-area">
+            <button type="button" id="mic-btn" class="btn btn-mic" onclick="startDictation()">
+                &#127908; Speak
+            </button>
+
+            <div class="upload-area" onclick="document.getElementById('fir-file').click()">
                 <label>
-                    <strong>📷 Upload FIR / Case Image</strong><br>
-                    <span style="font-size: 0.85rem; color: #7f8c8d;">
-                        Supports JPG / PNG / handwritten notes
-                    </span>
+                    <div class="upload-icon">&#128247;</div>
+                    <div class="upload-title">Upload FIR / Case Image</div>
+                    <div class="upload-hint">Supports JPG, PNG — including handwritten notes</div>
                 </label>
-                <input type="file" name="fir_file" accept="image/*">
+                <input type="file" name="fir_file" id="fir-file" accept="image/*" onchange="handleFileSelect(this)">
+                <div id="file-name" class="file-name" style="display:none;"></div>
             </div>
 
-            <button type="submit" class="analyze-btn">Analyze Case</button>
+            <button type="submit" id="analyze-btn" class="btn btn-primary">
+                &#9889; Analyze Case
+            </button>
         </form>
     </div>
 
+    <!-- Results -->
     {% if analysis %}
-    <div class="result-card">
+    <div class="card result-card">
         <div class="result-header">
-            <h2>Comprehensive AI Legal Analysis</h2>
+            <h2><span class="icon">&#129504;</span> AI Legal Analysis</h2>
         </div>
 
-        <div class="result-body">
-            <pre>{{ analysis }}</pre>
+        <!-- Confidence Bar -->
+        <div id="confidence-section" class="confidence-bar">
+            <div class="confidence-label">
+                Confidence Level: <strong id="confidence-value">&mdash;</strong>
+            </div>
+            <div class="confidence-track">
+                <div id="confidence-fill" class="confidence-fill" style="width: 0%;"></div>
+            </div>
+        </div>
 
-            <form action="/download_report" method="POST" target="_blank">
+        <div class="analysis-content">{{ analysis }}</div>
+
+        <!-- Download Buttons -->
+        <div class="download-group">
+            <form action="/download_report" method="POST" target="_blank" style="margin:0;">
                 <input type="hidden" name="analysis" value="{{ analysis }}">
                 <input type="hidden" name="user_case" value="{{ input_text }}">
-                <button type="submit" class="download-btn">
-                    📄 Download Full Report
-                </button>
+                {% if similar_cases %}
+                <input type="hidden" name="similar_cases_json" value="{{ similar_cases_json }}">
+                {% endif %}
+                <button type="submit" class="btn btn-download pdf">&#128196; Download PDF</button>
+            </form>
+
+            <form action="/download_report_html" method="POST" target="_blank" style="margin:0;">
+                <input type="hidden" name="analysis" value="{{ analysis }}">
+                <input type="hidden" name="user_case" value="{{ input_text }}">
+                {% if similar_cases %}
+                <input type="hidden" name="similar_cases_json" value="{{ similar_cases_json }}">
+                {% endif %}
+                <button type="submit" class="btn btn-download html">&#127760; Printable HTML</button>
+            </form>
+
+            <form action="/api/report_json" method="POST" target="_blank" style="margin:0;">
+                <input type="hidden" name="analysis" value="{{ analysis }}">
+                <input type="hidden" name="user_case" value="{{ input_text }}">
+                {% if similar_cases %}
+                <input type="hidden" name="similar_cases_json" value="{{ similar_cases_json }}">
+                {% endif %}
+                <button type="submit" class="btn btn-download json">&#128203; JSON Export</button>
             </form>
         </div>
     </div>
     {% endif %}
 
+    <!-- Similar Cases -->
+    {% if similar_cases %}
+    <div class="card cases-section">
+        <div class="card-title">
+            <span class="icon">&#128269;</span> Similar Cases ({{ similar_cases|length }} found)
+        </div>
+
+        <div class="cases-grid">
+            {% for case in similar_cases %}
+            <div class="case-card">
+                <div class="case-card-header">
+                    <div class="case-title">{{ case.case_title }}</div>
+                    {% set score_pct = (case.similarity_score * 100)|int %}
+                    {% if score_pct >= 70 %}
+                    <span class="score-badge score-high">{{ score_pct }}% Match</span>
+                    {% elif score_pct >= 40 %}
+                    <span class="score-badge score-mid">{{ score_pct }}% Match</span>
+                    {% else %}
+                    <span class="score-badge score-low">{{ score_pct }}% Match</span>
+                    {% endif %}
+                </div>
+
+                <div class="case-court">{{ case.court }}</div>
+
+                <div class="case-summary">{{ case.summary }}</div>
+                {% if case.summary|length > 150 %}
+                <button class="expand-btn" onclick="toggleCaseSummary(this)">Show more &#8595;</button>
+                {% endif %}
+
+                <div class="case-footer">
+                    <div class="case-sections">
+                        {% for sec in case.sections[:5] %}
+                        <span class="section-tag">Section {{ sec }}</span>
+                        {% endfor %}
+                    </div>
+                    {% if case.source_url %}
+                    <a href="{{ case.source_url }}" target="_blank" rel="noopener" class="case-link">
+                        View Full Case &rarr;
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+        <strong>Disclaimer:</strong> This AI system is for academic and research purposes only.
+        It does not replace professional legal advice. Always consult a qualified legal professional.
+    </div>
+
 </div>
 
-<div class="disclaimer">
-    Disclaimer: This AI system is for academic purposes only.
-    It does not replace professional legal advice.
-</div>
-
-<script>
-function startDictation() {
-    if (window.hasOwnProperty('webkitSpeechRecognition')) {
-        var recognition = new webkitSpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = "en-US";
-        recognition.start();
-
-        recognition.onresult = function(e) {
-            document.getElementById('case').value += " " + e.results[0][0].transcript;
-            recognition.stop();
-        };
-
-        recognition.onerror = function() {
-            recognition.stop();
-        };
-    } else {
-        alert("Voice input supported only in Chrome.");
-    }
-}
-</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
 </html>

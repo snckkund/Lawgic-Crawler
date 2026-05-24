@@ -1,7 +1,30 @@
+# ─── Core ───
 flask
 pandas
-sentence-transformers
-sqlite3
-openai
-fpdf
 python-dotenv
+gunicorn
+
+# ─── NLP & Embeddings ───
+sentence-transformers
+torch
+
+# ─── LLM API ───
+requests
+openai
+
+# ─── Web Crawling ───
+beautifulsoup4
+aiohttp
+
+# ─── Vector Search ───
+faiss-cpu
+
+# ─── OCR ───
+Pillow
+pytesseract
+
+# ─── Report Generation ───
+fpdf
+
+# ─── Security ───
+flask-limiter
