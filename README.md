@@ -2,6 +2,10 @@
 
 > LAWGIC-Crawler is an AI-powered legal intelligence platform that combines NLP, semantic similarity, web crawling, OCR, and cloud-hosted LLMs to analyze FIR descriptions, recommend BNS/IPC sections, retrieve similar legal cases and judgments, and generate structured printable legal research reports with linked legal references.
 
+<p align="center">
+  <img src="docs/images/lawgic_dashboard.png" width="100%" alt="LAWGIC Platform Dashboard Mockup" />
+</p>
+
 ---
 
 ## Features
@@ -33,40 +37,9 @@
 
 ## System Architecture
 
-```
-User Input (Text / Voice / Image)
-        │
-        ▼
-   ┌─────────┐
-   │  Flask   │ ← Web Interface
-   │  Server  │
-   └────┬─────┘
-        │
-   ┌────┴────────────────────────────┐
-   │                                 │
-   ▼                                 ▼
-┌──────────┐                 ┌──────────────┐
-│ OCR      │                 │ Embedding    │
-│ (Tesseract)│               │ (MiniLM-L6)  │
-└──────────┘                 └──────┬───────┘
-                                    │
-                    ┌───────────────┼───────────────┐
-                    │               │               │
-                    ▼               ▼               ▼
-            ┌──────────┐   ┌──────────┐    ┌──────────────┐
-            │ BNS Law  │   │ Cloud    │    │ Web Crawler  │
-            │ Matching │   │ LLM API  │    │ (Indian      │
-            │          │   │ (Groq)   │    │  Kanoon)     │
-            └──────────┘   └──────────┘    └──────────────┘
-                    │               │               │
-                    └───────────────┼───────────────┘
-                                    │
-                                    ▼
-                            ┌──────────────┐
-                            │ Report Gen   │
-                            │ (PDF/HTML)   │
-                            └──────────────┘
-```
+<p align="center">
+  <img src="docs/images/lawgic_architecture_flow.png" width="100%" alt="LAWGIC Program Flow & System Architecture" />
+</p>
 
 ---
 
@@ -269,13 +242,13 @@ This version of the platform has been extensively re-engineered and upgraded as 
 #### Fork Team Developers
 
 ##### M.Tech in Computer Science and Engineering (3MTCS)
-* **Shivangi** (Roll No: 2567113 | [shivangi.a@mtech.christuniversity.in](mailto:shivangi.a@mtech.christuniversity.in))
-* **SN Chandra Kanta Kund** (Roll No: 2567114 | [sn.chandra@mtech.christuniversity.in](mailto:sn.chandra@mtech.christuniversity.in))
-* **Arnab Mondal** (Roll No: 2567118 | [arnab.mondal@mtech.christuniversity.in](mailto:arnab.mondal@mtech.christuniversity.in))
+* **Shivangi** (Roll No: 2567113 | [@shivangi](https://github.com/shivangichaudhary))
+* **SN Chandra Kanta Kund** (Roll No: 2567114 | [@snckkund](https://github.com/snckkund))
+* **Arnab Mondal** (Roll No: 2567118 | [@arnabmondal](https://github.com/arnabmondalcontai))
 
 ##### M.Tech in Data Science (3MTDS)
-* **Abhishek Deep** (Roll No: 2567201 | [abhishek.deep@mtech.christuniversity.in](mailto:abhishek.deep@mtech.christuniversity.in))
-* **Anshu Kumari** (Roll No: 2567203 | [anshu.kumari@mtech.christuniversity.in](mailto:anshu.kumari@mtech.christuniversity.in))
+* **Abhishek Deep** (Roll No: 2567201 | [@abhishekdeep](https://github.com/abhishekdeepofficial))
+* **Anshu Kumari** (Roll No: 2567203 | [@anshukumari](https://github.com/Anshu3110))
 
 **Under the guidance of:** Dr. Kalyana Saravanan.A (Associate Professor)  
 **CHRIST (Deemed to be University), Bangalore**
